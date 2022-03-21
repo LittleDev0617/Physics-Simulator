@@ -4,7 +4,47 @@
     <title>용수철 단진동 시뮬레이터</title>
 </head>
 <body>
-    <canvas id=""></canvas>
-    <script></script>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+
+        class Simulator {
+            constructor() {                
+
+                this.settings = { 
+                    mass : 1,               
+                    startLength : 5,    //cm
+                    k : 10, // N/cm
+                    time : 0
+                };
+
+                this.Object = {
+                    settings : {},
+                    x : 300, y : 100, width : 100, height : 100, startX : 300,
+                    draw : function() {
+                        context.fillRect(this.x,this.y,this.width,this.height);
+                    },
+                    move : function() {
+                        var s = this.settings;
+                        this.x = this.startX + s.startLength * Math.cos(Math.sqrt(s.k/s.mass) * s.time * 0.001);                        
+                    }
+                };
+                this.Object.settings = this.settings;
+
+                this.startTime = Date.now();
+                window.requestAnimationFrame(update);
+            }
+
+            update() {
+                context.clearRect(0, 0, 500, 500);
+                this.settings.time = Date.now() - this.startTime;
+                this.Object.settings = this.settings;
+                this.Object.move();
+                this.Object.draw();
+                window.requestAnimationFrame(update);
+            }
+        }
+    </script>
 </body>
 </html>
