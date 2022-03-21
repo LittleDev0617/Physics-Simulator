@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
+    <style>
+        .main {
+            text-align: center;
+            height: 100vh;
+            margin-top: 200px;
+        }
+    </style>
     <title>용수철 단진동 시뮬레이터</title>
 </head>
-<body>
-    <canvas id="canvas" width="500" height="500"></canvas>
+<body style="background-color: #343837;">
+    <div class="main">
+        <canvas id="canvas" width="1000" height="500"></canvas>
+    </div>
     <script>
         var canvas = document.getElementById("canvas");
         var context = canvas.getContext("2d");
 
         class Simulator {
-            constructor() {                
-
-                this.settings = { 
-                    mass : 1,               
-                    startLength : 5,    //cm
-                    k : 10, // N/cm
-                    time : 0
-                };
+            constructor(s) {                
+                this.settings = s;
 
                 this.Object = {
                     settings : {},
-                    x : 300, y : 100, width : 100, height : 100, startX : 300,
+                    x : 500, y : 100, width : 100, height : 100, startX : 500,
                     draw : function() {
+                        context.fillStyle = "#0F9B8E";
                         context.fillRect(this.x,this.y,this.width,this.height);
                     },
                     move : function() {
@@ -33,19 +37,24 @@
                 this.Object.settings = this.settings;
 
                 this.startTime = Date.now();
-                window.requestAnimationFrame(update);
+                window.requestAnimationFrame(function(){ sim.update(); });
             }
 
             update() {
-                context.clearRect(0, 0, 500, 500);
+                context.clearRect(0, 0, 1000, 500);
                 this.settings.time = Date.now() - this.startTime;
                 this.Object.settings = this.settings;
                 this.Object.move();
                 this.Object.draw();
-                window.requestAnimationFrame(update);
+                window.requestAnimationFrame(function(){ sim.update(); });
             }
         }
-        var sim = new Simulator();
+        var sim = new Simulator({ 
+                    mass : 1,               
+                    startLength : 30,    //cm
+                    k : 100, // N/cm
+                    time : 0
+                });
     </script>
 </body>
 </html>
