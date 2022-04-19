@@ -5,7 +5,7 @@
         .main {
             text-align: center;
             height: 100vh;
-            margin-top: 200px;
+            margin-top: 100px;
         }
     </style>
     <title>용수철 단진동 시뮬레이터</title>
@@ -24,7 +24,7 @@
                 
                 this.Object = {
                     settings : {},
-                    x : 500, y : 100, width : 100, height : 100, startX : 500,
+                    x : 500, y : 200, width : 100, height : 100, startX : 500,
                     draw : function() {
                         context.fillStyle = "#0F9B8E";
                         context.fillRect(this.x,this.y,this.width,this.height);
@@ -33,8 +33,8 @@
                         var s = this.settings;
                         this.x = this.startX + s.startLength * Math.cos(Math.sqrt(s.k/s.mass) * s.time * 0.001);                        
                     }
-                };
-                
+                }; 
+
                 this.Object.settings = this.settings;
 
                 this.startTime = Date.now();
@@ -43,18 +43,44 @@
 
             update() {
                 context.clearRect(0, 0, 1000, 500);
+
+                this.drawBg();
+
                 this.settings.time = Date.now() - this.startTime;
                 this.Object.settings = this.settings;
                 this.Object.move();
                 this.Object.draw();
                 window.requestAnimationFrame(function(){ sim.update(); });
             }
+
+            drawBg() {
+                context.beginPath();
+                context.moveTo(this.Object.startX - this.settings.startLength, 100);
+                context.lineTo(this.Object.startX - this.settings.startLength, 400);
+                
+                context.lineWidth = 1;                
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(this.Object.startX + this.settings.startLength + this.Object.width, 100);
+                context.lineTo(this.Object.startX + this.settings.startLength + this.Object.width, 400);                
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(this.Object.startX + this.Object.width / 2, 100);
+                context.lineTo(this.Object.startX + this.Object.width / 2, 400);                
+                context.stroke();
+            }
+
+            drawGraph() {
+                
+            }
         }
 
         var sim = new Simulator({ 
                     mass : 1,               
-                    startLength : 30,    //cm
-                    k : 100, // N/cm
+                    startLength : 300,    //cm
+                    k : 10, // N/cm
                     time : 0
                 });
     </script>
