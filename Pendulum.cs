@@ -13,17 +13,24 @@ public class Pendulum : MonoBehaviour
     private double start_theta = 30 * Math.PI / 180;
     private double g = 9.80665d;
     private double theta;
+    private double dt = 0.001;
+    public bool timeTrigger = true;
 
-
+    public void TimeTrigger(bool isOn)
+    {
+        timeTrigger = !timeTrigger;
+        Play();
+    }
     private bool isToggle = false;
     IEnumerator tick()
     {
         double t = 0f;
-        double dt = Time.deltaTime;
+        //double dt = (timeTrigger ? 0.001 : Time.deltaTime);
         double v = 0;
         bool tmp = true;
         int tmp2 = 1;
         Text timeText = GameObject.Find("Time").GetComponent<Text>();
+        double prevT = 0;
         while(true)
         {
             if(isVelocity) 
@@ -39,7 +46,11 @@ public class Pendulum : MonoBehaviour
            //Debug.Log($"[{t}] theta : {theta * 180 / Math.PI} v : {v} - {isToggle}");
             if(tmp == isToggle)
             {
-                if(tmp2 % 2 == 0) GameObject.Find("MagentaT").GetComponent<Text>().text = $"Time : {Math.Round(t,4)} s";
+                if(tmp2 % 2 == 0)
+                {
+                    GameObject.Find("MagentaT").GetComponent<Text>().text = $"Time : {Math.Round(t,6)} s\n" + $"T : {Math.Round(t - prevT,6)} s";
+                    prevT = t;
+                }
                 tmp = !tmp;
                 tmp2++;
             }
@@ -48,7 +59,8 @@ public class Pendulum : MonoBehaviour
 
             t += dt;
             timeText.text = $"t = {Math.Round(t,4)}";
-            yield return new WaitForSecondsRealtime((float)dt);
+            //yield return timeTrigger ? null : new WaitForSecondsRealtime((float)dt);
+            yield return null;
         }
     }
 
@@ -58,6 +70,7 @@ public class Pendulum : MonoBehaviour
 
         double T = GetT();
         GameObject.Find("T").GetComponent<Text>().text = Math.Round(T,4).ToString() + " s";
+        GameObject.Find("ApproximationT").GetComponent<Text>().text = Math.Round(2 * Math.PI * Math.Sqrt(length/g),4) + "s";
         theta = start_theta - 0.00000000001d;
         transform.eulerAngles = new Vector3(0,0,(float)(start_theta * 180 / Math.PI));
         StartCoroutine("tick");
@@ -94,15 +107,19 @@ public class Pendulum : MonoBehaviour
     {
         Text angle = GameObject.Find("Angle").transform.GetChild(2).GetComponent<Text>();
         Text length = GameObject.Find("Length").transform.GetChild(2).GetComponent<Text>();
+        Text dt = GameObject.Find("dt").transform.GetChild(2).GetComponent<Text>();
 
         double a;
         double b;
+        double c;
         if((angle.text.Trim() == "" || !double.TryParse(angle.text,NumberStyles.Number,CultureInfo.InvariantCulture,out a)) ||
-            (length.text.Trim() == "" || !double.TryParse(length.text,NumberStyles.Number,CultureInfo.InvariantCulture,out b)))   return;
+            (length.text.Trim() == "" || !double.TryParse(length.text,NumberStyles.Number,CultureInfo.InvariantCulture,out b)) ||
+            (dt.text.Trim() == "" || !double.TryParse(dt.text,NumberStyles.Number,CultureInfo.InvariantCulture,out c)))   return;
 
-        if(a == 0 || b == 0) return;
+        if(a == 0 || b == 0 || c == 0) return;
         start_theta = a * Math.PI / 180;
         this.length = b;
+        this.dt = c;
 
         GameObject.Find("MagentaP").GetComponent<Text>().text = $"Angle   : { Math.Round(this.start_theta * 180 / Math.PI,2) }º\nLength : { Math.Round(this.length,2) }m";
         GameObject.Find("MagentaT").GetComponent<Text>().text = $"Time : 0 s";
@@ -145,5 +162,11 @@ public class Pendulum : MonoBehaviour
     public void HelpButton()
     {
         HelpObject.SetActive(!HelpObject.active);
+    }
+
+    public void ToggleButton(string name)
+    {
+        Vector3 tmp = GameObject.Find(name).transform.position;
+        GameObject.Find(name).transform.position = new Vector3(tmp.x,tmp.y,tmp.z * -1) ;
     }
 }
